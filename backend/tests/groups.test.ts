@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest';
 import app from '../src/server';
 import { StatusCodes } from 'http-status-codes';
+import { connectDB, disconnectDB, getDB } from '../src/db';
 
 describe('groups', () => {
   const testGroup = {
@@ -9,12 +10,22 @@ describe('groups', () => {
     password: 'test123',
   };
 
+  beforeAll(async () => {
+    await connectDB();
+    await getDB().collection('groups').drop();
+  });
+
   beforeEach(async () => {
+    await getDB().collection('groups').drop();
     await app.inject({
       method: 'POST',
       url: '/groups',
       payload: testGroup,
     });
+  });
+
+  afterAll(async () => {
+    await disconnectDB();
   });
 
   describe('POST /groups', () => {
