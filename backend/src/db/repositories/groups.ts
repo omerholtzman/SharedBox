@@ -1,5 +1,5 @@
 import { getDB } from "../index";
-import type { Group } from "../models/groups";
+import type { Group } from "../../types/groups";
 
 export const insertGroup = async (groupData: Group) => {
     const db = getDB();

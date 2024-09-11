@@ -25,6 +25,7 @@ export const connectDB = async () => {
     console.log(`MongoDB connected to database: ${config.DB_NAME}`);
 
     await db.collection('groups').createIndex({ name: 1 }, { unique: true });
+    await db.collection('users').createIndex({ username: 1 }, { unique: true });
 
     return db;
   } catch (error) {

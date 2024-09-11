@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { groupSchema, updateGroupSchema } from '../schemas/groups';
 import { StatusCodes } from 'http-status-codes';
-import { handleError } from '../utils/errorHandler';
+import { handleError } from '../middleware/errorHandler';
 
 import { 
   findAllGroups,
