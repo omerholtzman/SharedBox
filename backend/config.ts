@@ -11,14 +11,18 @@ if (env === 'development') {
   envFile = '.test.env';
 }
 
-dotenv.config({ path: path.resolve(__dirname, `../../${envFile}`) });
+dotenv.config({ path: path.resolve(process.cwd(), envFile) });
 
 const configSchema = z.object({
-  PORT: z.number().min(1).default(5000),
+  PORT: z.coerce.number().min(1),
+  MONGO_URI: z.string(),
+  DB_NAME: z.string(),
 });
 
 const config = configSchema.parse({
   PORT: process.env.PORT,
+  MONGO_URI: process.env.MONGO_URI,
+  DB_NAME: process.env.DB_NAME,
 });
 
 export default config;

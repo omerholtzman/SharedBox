@@ -20,6 +20,9 @@ jobs:
         with:
           node-version: '18'
 
+      - name: initialize Mongo
+        run: docker compose up -d    
+
       - name: Install dependencies
         run: npm install
 
