@@ -10,8 +10,7 @@ export const verifyToken = (req: FastifyRequest, reply: FastifyReply, done: any)
   }
 
   try {
-    const decoded = jwt.verify(token, config.JWT_SECRET);
-    (req as any).user = decoded;
+    jwt.verify(token, config.JWT_SECRET);
     done();
   } catch (error) {
     reply.status(StatusCodes.UNAUTHORIZED).send({ message: 'Invalid token' });

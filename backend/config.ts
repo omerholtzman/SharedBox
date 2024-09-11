@@ -18,6 +18,7 @@ const configSchema = z.object({
   MONGO_URI: z.string(),
   DB_NAME: z.string(),
   JWT_SECRET: z.string(),
+  JWT_EXPIRE_TIME: z.string(),
 });
 
 const config = configSchema.parse({
@@ -25,6 +26,7 @@ const config = configSchema.parse({
   MONGO_URI: process.env.MONGO_URI,
   DB_NAME: process.env.DB_NAME,
   JWT_SECRET: process.env.JWT_SECRET,
+  JWT_EXPIRE_TIME: process.env.JWT_EXPIRE_TIME,
 });
 
 export default config;

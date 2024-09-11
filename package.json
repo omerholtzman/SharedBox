@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test vitest",
+    "test:coverage": "cross-env NODE_ENV=test vitest --coverage",
     "lint": "eslint --fix .",
     "start": "cross-env NODE_ENV=development ts-node-dev --project backend/tsconfig.json --respawn --transpile-only backend/src/index.ts",
     "build": "tsc -p backend/tsconfig.json",
@@ -19,6 +20,7 @@
     "@types/node": "^22.5.4",
     "@typescript-eslint/eslint-plugin": "^8.5.0",
     "@typescript-eslint/parser": "^8.5.0",
+    "@vitest/coverage-v8": "^2.1.0",
     "eslint": "^9.10.0",
     "globals": "^15.9.0",
     "supertest": "^7.0.0",

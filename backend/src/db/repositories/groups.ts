@@ -28,7 +28,7 @@ export const findGroupByName = async (name: string) => {
       );
       
     if (result !== null) {
-        const { _id, ...rest } = result;
+        const { _id, ...rest } = result; 
         return rest;
     }
 

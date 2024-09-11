@@ -20,5 +20,5 @@ export const signIn = async (username: string, password: string):
   const isValidPassword = await bcrypt.compare(password, user.passwordHash);
   if (!isValidPassword) return null;
 
-  return jwt.sign({ username }, config.JWT_SECRET, { expiresIn: '1h' });
+  return jwt.sign({ username }, config.JWT_SECRET, { expiresIn: config.JWT_EXPIRE_TIME });
 };
