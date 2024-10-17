@@ -1,7 +1,10 @@
-import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, beforeAll, afterAll, vi } from 'vitest';
 import app from '../src/server';
 import { StatusCodes } from 'http-status-codes';
 import { connectDB, disconnectDB, getDB } from '../src/db';
+import * as authMiddleware from '../src/middleware/authMiddleware';
+
+vi.spyOn(authMiddleware, 'verifyToken').mockImplementation((req, reply, done) => done());
 
 describe('groups', () => {
   const testGroup = {
@@ -39,7 +42,7 @@ describe('groups', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/groups',
-        payload: newGroup
+        payload: newGroup,
       });
   
       expect(response.statusCode).toBe(StatusCodes.CREATED);

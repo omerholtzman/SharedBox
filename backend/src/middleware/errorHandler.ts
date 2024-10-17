@@ -2,7 +2,7 @@ import { FastifyReply } from 'fastify';
 import { StatusCodes } from 'http-status-codes';
 
 
-export function handleError(reply: FastifyReply, error) {
+export function handleError(reply: FastifyReply, error: any) {
   if (error.validation) {
     reply.status(StatusCodes.BAD_REQUEST)
       .send({ message: 'Validation Error', details: error.validation });

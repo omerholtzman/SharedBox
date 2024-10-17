@@ -1,5 +1,5 @@
 import { getDB } from "../index";
-import type { Group } from "../models/groups";
+import type { Group } from "../../types/groups";
 
 export const insertGroup = async (groupData: Group) => {
     const db = getDB();
@@ -28,7 +28,7 @@ export const findGroupByName = async (name: string) => {
       );
       
     if (result !== null) {
-        const { _id, ...rest } = result;
+        const { _id, ...rest } = result; 
         return rest;
     }
 
