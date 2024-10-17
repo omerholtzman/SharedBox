@@ -7,9 +7,9 @@
     "test": "cross-env NODE_ENV=test vitest",
     "test:coverage": "cross-env NODE_ENV=test vitest --coverage",
     "lint": "eslint --fix .",
-    "start": "cross-env NODE_ENV=development ts-node-dev --project backend/tsconfig.json --respawn --transpile-only backend/src/index.ts",
-    "build": "tsc -p backend/tsconfig.json",
-    "start:prod": "cross-env NODE_ENV=production node backend/dist/index.js"
+    "start:dev": "cross-env NODE_ENV=development ts-node-dev --project ./tsconfig.json --respawn --transpile-only ./src/index.ts",
+    "start": "cross-env NODE_ENV=production && node ./dist/src/index.js",
+    "build": "tsc -p ./tsconfig.json"
   },
   "author": "",
   "license": "ISC",

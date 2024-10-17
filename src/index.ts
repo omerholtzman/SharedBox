@@ -5,7 +5,7 @@ import { connectDB, disconnectDB } from './db/index';
 
 const startServer = async () => {
   try {
-    const address = await app.listen({ port: config.PORT });
+    const address = await app.listen({ port: config.PORT, host: '0.0.0.0' });
     console.log(`Server running at ${address}`);
   } catch (error) {
     console.error('Error starting the server:', error);
