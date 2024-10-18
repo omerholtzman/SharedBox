@@ -15,7 +15,7 @@ const renameItemSchema = z.object({
 }).strict();
 
 const fullItemSchema = newItemSchema.extend({
-    _id: z.instanceof(ObjectId),
+    _id: z.instanceof(ObjectId).optional(),
     group: z.string(),
 });
 
