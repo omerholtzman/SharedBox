@@ -6,6 +6,12 @@ const state = {
   db: null as Db | null,
 };
 
+const buildIndexes = async (db: Db) => {
+  await db.collection('groups').createIndex({ name: 1 }, { unique: true });
+  await db.collection('users').createIndex({ username: 1 }, { unique: true });
+  await db.collection('items').createIndex({ group: 1 });
+};
+
 
 export const connectDB = async () => {
   try {
@@ -16,7 +22,13 @@ export const connectDB = async () => {
 
     const client = new MongoClient(config.MONGO_URI);
 
-    await client.connect();
+    await client.connect()
+      .then(() => console.log('Connected to MongoDB'))
+      .catch((err) => {
+      console.error('Failed to connect to MongoDB. Retrying...', err);
+      setTimeout(async () => await client.connect(), 1000);
+    });;
+
     const db = client.db(config.DB_NAME);
     
     state.client = client;
@@ -24,8 +36,7 @@ export const connectDB = async () => {
 
     console.log(`MongoDB connected to database: ${config.DB_NAME}`);
 
-    await db.collection('groups').createIndex({ name: 1 }, { unique: true });
-    await db.collection('users').createIndex({ username: 1 }, { unique: true });
+    await buildIndexes(db);
 
     return db;
   } catch (error) {
