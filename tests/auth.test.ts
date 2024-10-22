@@ -4,16 +4,20 @@ import { StatusCodes } from 'http-status-codes';
 import { connectDB, disconnectDB, getDB } from '../src/db';
 import { beforeEach } from 'node:test';
 import config from '../config';
+import { User } from '../src/db/repositories/users';
+import { Collection } from 'mongodb';
 
 describe('Authentication', () => {
     describe('Authentication Routes', () => {
+        let collection: Collection<User>;
         beforeAll(async () => {
             await connectDB();
-            await getDB().collection('users').deleteMany({});
+            collection = getDB().collection<User>('users');
+            await collection.deleteMany({});
         });
     
         beforeEach(async () => {
-            await getDB().collection('users').deleteMany({});
+            await collection.deleteMany({});
         });
         
         afterAll(async () => {
@@ -99,13 +103,16 @@ describe('Authentication', () => {
       : 15 * 60 * 1000;
     
     describe('Protected Route Access', () => {
+        let collection: Collection<User>;
+        
         beforeAll(async () => {
             await connectDB();
-            await getDB().collection('users').deleteMany({});
+            collection = getDB().collection<User>('users'); 
+            await collection.deleteMany({});
         });
     
         beforeEach(async () => {
-            await getDB().collection('users').deleteMany({});            
+            await collection.deleteMany({});            
         });
     
         afterAll(async () => {

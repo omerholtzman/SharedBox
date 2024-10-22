@@ -3,10 +3,14 @@ import app from '../src/server';
 import { StatusCodes } from 'http-status-codes';
 import { connectDB, disconnectDB, getDB } from '../src/db';
 import * as authMiddleware from '../src/middleware/authMiddleware';
+import { Group } from '../src/types/groups';
+import { Collection } from 'mongodb';
 
 vi.spyOn(authMiddleware, 'verifyToken').mockImplementation((req, reply, done) => done());
 
 describe('groups', () => {
+  let collection: Collection<Group>;
+  
   const testGroup = {
     name: 'Test Group',
     description: 'A group for testing',
@@ -16,12 +20,13 @@ describe('groups', () => {
 
   beforeAll(async () => {
     await connectDB();
-    await getDB().collection('groups').drop();
+    collection = getDB().collection<Group>('groups');
+    await collection.drop();
   });
 
   beforeEach(async () => {
-    await getDB().collection('groups').drop();
-    await getDB().collection('groups').insertOne({ ...testGroup });
+    await collection.drop();
+    await collection.insertOne({ ...testGroup });
   });
 
   afterAll(async () => {
@@ -46,7 +51,7 @@ describe('groups', () => {
       expect(response.statusCode).toBe(StatusCodes.CREATED);
       expect(response.json().members).toContain('omer');
 
-      const group = await getDB().collection('groups').findOne({ name: newGroup.name });
+      const group = await collection.findOne({ name: newGroup.name });
       expect(group).not.toBeNull();
     });
 
@@ -140,7 +145,7 @@ describe('groups', () => {
       });
   
       expect(response.statusCode).toBe(StatusCodes.OK);
-      const group = await getDB().collection('groups').findOne({ name: testGroup.name });
+      const group = await collection.findOne({ name: testGroup.name });
       expect(group?.members).toContain('jane_doe');
     });
 
@@ -151,7 +156,7 @@ describe('groups', () => {
         payload: { username: 'jane_doe', password: testGroup.password },
       });
 
-      const group = await getDB().collection('groups').findOne({ name: testGroup.name });
+      const group = await collection.findOne({ name: testGroup.name });
       expect(group?.members).toContain('jane_doe');
 
       const response = await app.inject({
@@ -172,7 +177,7 @@ describe('groups', () => {
       });
   
       expect(response.statusCode).toBe(StatusCodes.UNAUTHORIZED);
-      const group = await getDB().collection('groups').findOne({ name: testGroup.name });
+      const group = await collection.findOne({ name: testGroup.name });
       expect(group?.members).not.toContain('jane_doe');
     });
 
@@ -199,7 +204,7 @@ describe('groups', () => {
       });
   
       expect(response.statusCode).toBe(StatusCodes.OK);
-      const group = await getDB().collection('groups').findOne({ name: testGroup.name });
+      const group = await collection.findOne({ name: testGroup.name });
       expect(group?.members).not.toContain(memberToUnsubscribe);
     });
 
