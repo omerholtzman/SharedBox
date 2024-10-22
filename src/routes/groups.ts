@@ -1,6 +1,5 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { StatusCodes } from 'http-status-codes';
-import { handleError } from '../middleware/errorHandler';
 import { 
   newGroupSchema,
   subscribeUserSchema,
@@ -16,16 +15,11 @@ import {
   updateGroup } from '../db/repositories/groups';
 
 async function getGroups(req: FastifyRequest, reply: FastifyReply) {
-  try {
-    const groups = await findAllGroups();
-    reply.status(StatusCodes.OK).send(groups);
-  } catch (error) {
-    handleError(reply, error);
-  }
+  const groups = await findAllGroups();
+  reply.status(StatusCodes.OK).send(groups);
 }
 
 async function createGroup(req: FastifyRequest, reply: FastifyReply) {
-  try {
     const newGroupData = newGroupSchema.parse(req.body);
     const existingGroup = await findGroupByName(newGroupData.name);
     if (existingGroup) {
@@ -38,88 +32,68 @@ async function createGroup(req: FastifyRequest, reply: FastifyReply) {
       .send({ message:'Failed to create the group' });
 
     reply.status(StatusCodes.CREATED).send(newGroup);
-  } catch (error) {
-    handleError(reply, error);
-  }
 }
 
 async function patchGroup(req: FastifyRequest, reply: FastifyReply) {
-  try {
-    const { name } = req.params as { name: string };
-    const updateData = updateGroupSchema.parse(req.body);
-    const result = await updateGroup(name, { $set: updateData });
-    if (!result) {
-      return reply.status(StatusCodes.NOT_FOUND).send({ message: 'Group not found' });
-    }
-    reply.status(StatusCodes.OK).send(result);
-  } catch (error) {
-    handleError(reply, error);
+  const { name } = req.params as { name: string };
+  const updateData = updateGroupSchema.parse(req.body);
+  const result = await updateGroup(name, { $set: updateData });
+  if (!result) {
+    return reply.status(StatusCodes.NOT_FOUND).send({ message: 'Group not found' });
   }
+  reply.status(StatusCodes.OK).send(result); 
 }
 
 async function deleteGroup(req: FastifyRequest, reply: FastifyReply) {
-  try {
-    const { name } = req.params as { name: string };
-    const result = await removeGroup(name);
-    if (result.deletedCount === 0) {
-      return reply.status(StatusCodes.NOT_FOUND).send({ message: 'Group not found' });
-    }
-    reply.status(StatusCodes.NO_CONTENT).send();
-  } catch (error) {
-    handleError(reply, error);
+  const { name } = req.params as { name: string };
+  const result = await removeGroup(name);
+  if (result.deletedCount === 0) {
+    return reply.status(StatusCodes.NOT_FOUND).send({ message: 'Group not found' });
   }
+  reply.status(StatusCodes.NO_CONTENT).send();
 }
 
 async function subscribeUser(req: FastifyRequest, reply: FastifyReply) {
-  try {
-    const { name } = req.params as { name: string };
-    const { username, password } = subscribeUserSchema.parse(req.body);
+  const { name } = req.params as { name: string };
+  const { username, password } = subscribeUserSchema.parse(req.body);
 
-    const group = await findGroupByName(name);
-    if (!group) {
-      return reply.status(StatusCodes.NOT_FOUND).send({ message: 'Group not found' });
-    }
-
-    if (group.password !== password) {
-      return reply.status(StatusCodes.UNAUTHORIZED)
-      .send({ message: 'Incorrect password' });
-    }
-
-    if (group.members.includes(username)) {
-      return reply.status(StatusCodes.BAD_REQUEST)
-      .send({ message: 'User already subscribed' });
-    }
-
-    await updateGroup(name, { $push: { members: username } });
-
-    reply.status(StatusCodes.OK).send({ message: 'Subscribed successfully' });
+  const group = await findGroupByName(name);
+  if (!group) {
+    return reply.status(StatusCodes.NOT_FOUND).send({ message: 'Group not found' });
   }
-  catch (error) {
-    handleError(reply, error);
+
+  if (group.password !== password) {
+    return reply.status(StatusCodes.UNAUTHORIZED)
+    .send({ message: 'Incorrect password' });
   }
+
+  if (group.members.includes(username)) {
+    return reply.status(StatusCodes.BAD_REQUEST)
+    .send({ message: 'User already subscribed' });
+  }
+
+  await updateGroup(name, { $push: { members: username } });
+
+  reply.status(StatusCodes.OK).send({ message: 'Subscribed successfully' });
 }
 
 async function unsubscribeUser(req: FastifyRequest, reply: FastifyReply) {
-  try {
-    const { name } = req.params as { name: string };
-    const { username } = unsubscribeUserSchema.parse(req.body);
+  const { name } = req.params as { name: string };
+  const { username } = unsubscribeUserSchema.parse(req.body);
 
-    const group = await findGroupByName(name);
-    
-    if (!group) {
-      return reply.status(StatusCodes.NOT_FOUND).send({ message: 'Group not found' });
-    }
-
-    if (!group.members.includes(username)) {
-      return reply.status(StatusCodes.NOT_FOUND).send({ message: 'User not subscribed' });
-    }
-
-    await updateGroup(name, { $pull: { members: username } });
-
-    reply.status(StatusCodes.OK).send({ message: 'Unsubscribed successfully' });
-  } catch (error) {
-    handleError(reply, error);
+  const group = await findGroupByName(name);
+  
+  if (!group) {
+    return reply.status(StatusCodes.NOT_FOUND).send({ message: 'Group not found' });
   }
+
+  if (!group.members.includes(username)) {
+    return reply.status(StatusCodes.NOT_FOUND).send({ message: 'User not subscribed' });
+  }
+
+  await updateGroup(name, { $pull: { members: username } });
+
+  reply.status(StatusCodes.OK).send({ message: 'Unsubscribed successfully' });
 }
 
 async function groupRoutes(app: FastifyInstance) {

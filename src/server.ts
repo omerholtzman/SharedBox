@@ -8,8 +8,13 @@ import cors from '@fastify/cors';
 import { verifyToken } from './middleware/authMiddleware';
 
 import config from '../config';
+import { handleError } from './middleware/errorHandler';
  
 const app = Fastify({ logger: true });
+
+app.setErrorHandler((error, _request, reply) => {
+  handleError(reply, error);
+});
 
 app.addHook('preHandler', (req, reply, done) => {
   const publicRoutes = ['/signup', '/signin', '/signout'];
