@@ -17,8 +17,17 @@ const findGroupByName = async (name: string): Promise<Group | null> => {
       { name },
       { projection: { _id: 0 } }
     );
-  };
-  
+};
+
+const findUserGroups = async (username: string): Promise<Array<Group> | null> => {
+  const db = getDB();
+  const groups = await db.collection<Group>('groups')
+    .find({ members: { $in: [username] } }, { projection: { _id: 0 } })
+    .toArray();
+
+  return groups;
+};
+
 const findAllGroups = async (): Promise<Array<Group> | null> => {
   const db = getDB();
   return await db.collection<Group>('groups')
@@ -43,4 +52,11 @@ const removeGroup = async (name: string) => {
     return await db.collection<Group>('groups').deleteOne({ name });
 };
 
-export {createNewGroup, findGroupByName, findAllGroups, updateGroup, removeGroup };
+export {
+  createNewGroup,
+  findGroupByName,
+  findAllGroups,
+  updateGroup,
+  removeGroup,
+  findUserGroups
+};

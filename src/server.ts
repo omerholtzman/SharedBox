@@ -9,6 +9,7 @@ import { verifyToken } from './middleware/authMiddleware';
 
 import config from '../config';
 import { handleError } from './middleware/errorHandler';
+import userRoutes from './routes/users';
  
 const app = Fastify({ logger: true });
 
@@ -34,5 +35,6 @@ app.register(authRoutes);
 app.register(basicRoutes);
 app.register(groupRoutes);
 app.register(itemRoutes);
+app.register(userRoutes);
   
 export default app;
