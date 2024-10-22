@@ -66,6 +66,21 @@ describe('groups', () => {
       expect(response.json()).toHaveProperty(
         'message', 'Group with this name already exists');
     });
+
+    it('should not allow create new group with missing details', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/groups',
+        payload: {
+          name: testGroup.name,
+          description: 'Duplicate group for testing',
+          opener: 'test',
+        },
+      });
+  
+      expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST);
+      expect(response.json()).toHaveProperty('message', 'Validation Error');
+    });
   });
 
   describe('GET /groups', () => {
