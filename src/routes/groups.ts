@@ -20,6 +20,17 @@ async function getGroups(req: FastifyRequest, reply: FastifyReply) {
   reply.status(StatusCodes.OK).send(groups);
 }
 
+async function getGroupByName(req: FastifyRequest, reply: FastifyReply) {
+  const { name } = req.params as { name: string };
+  const group = await findGroupByName(name);
+
+  if (!group) {
+    return reply.status(StatusCodes.NOT_FOUND).send({ message: 'Group not found' });
+  }
+
+  reply.status(StatusCodes.OK).send(group);
+}
+
 async function createGroup(req: FastifyRequest, reply: FastifyReply) {
     const newGroupData = newGroupSchema.parse(req.body);
     const existingGroup = await findGroupByName(newGroupData.name);
@@ -99,6 +110,7 @@ async function unsubscribeUser(req: FastifyRequest, reply: FastifyReply) {
 
 async function groupRoutes(app: FastifyInstance) {
   app.get('/groups', getGroups);
+  app.get('/groups/:name', getGroupByName);
   app.post('/groups', createGroup);
   app.patch('/groups/:name', patchGroup);
   app.delete('/groups/:name', deleteGroup);
