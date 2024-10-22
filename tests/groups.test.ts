@@ -100,6 +100,28 @@ describe('groups', () => {
     });
   });
 
+  describe('GET /groups/:name', () => {
+    it('should return the group if it exists', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: `/groups/${testGroup.name}`,
+      });
+  
+      expect(response.statusCode).toBe(StatusCodes.OK);
+      expect(response.json()).toEqual(testGroup);
+    });
+  
+    it('should return 404 if the group does not exist', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/groups/NonExistentGroup',
+      });
+  
+      expect(response.statusCode).toBe(StatusCodes.NOT_FOUND);
+      expect(response.json()).toEqual({ message: 'Group not found' });
+    });
+  });
+  
   describe('PATCH /groups/:name', () => {
     it('should update a group’s name and description', async () => {
       const response = await app.inject({
