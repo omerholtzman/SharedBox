@@ -14,8 +14,9 @@ async function getUserGroups(req: FastifyRequest, reply: FastifyReply) {
       return reply.status(StatusCodes.NOT_FOUND)
         .send({ message: 'No groups found for the user' });
     }
+    
     const groupsNames = groups.map((group) => (group.name));
-    reply.status(StatusCodes.OK).send(groupsNames);
+    reply.status(StatusCodes.OK).send({ groups: groupsNames });
   }
 
 async function userRoutes(app: FastifyInstance) {

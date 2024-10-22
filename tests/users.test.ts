@@ -44,7 +44,7 @@ describe('users', () => {
       });
   
       expect(response.statusCode).toBe(StatusCodes.OK);
-      expect(response.json()).toEqual([testGroup.name, 'new group']);
+      expect(response.json()).toEqual({groups: [testGroup.name, 'new group']});
     });
   
     it('should return 404 if the user is not subscribed to any groups', async () => {
