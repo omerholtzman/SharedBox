@@ -12,7 +12,8 @@ import {
   findGroupByName,
   createNewGroup,
   removeGroup, 
-  updateGroup } from '../db/repositories/groups';
+  updateGroup, 
+} from '../db/repositories/groups';
 
 async function getGroups(req: FastifyRequest, reply: FastifyReply) {
   const groups = await findAllGroups();
