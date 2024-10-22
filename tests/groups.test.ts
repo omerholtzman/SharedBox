@@ -11,6 +11,7 @@ describe('groups', () => {
     name: 'Test Group',
     description: 'A group for testing',
     password: 'test123',
+    members: ['omer'],
   };
 
   beforeAll(async () => {
@@ -20,11 +21,7 @@ describe('groups', () => {
 
   beforeEach(async () => {
     await getDB().collection('groups').drop();
-    await app.inject({
-      method: 'POST',
-      url: '/groups',
-      payload: testGroup,
-    });
+    await getDB().collection('groups').insertOne({ ...testGroup });
   });
 
   afterAll(async () => {
@@ -37,6 +34,7 @@ describe('groups', () => {
         name: 'Family',
         description: 'Family storage group',
         password: 'password123',
+        opener: 'omer',
       };
   
       const response = await app.inject({
@@ -46,7 +44,10 @@ describe('groups', () => {
       });
   
       expect(response.statusCode).toBe(StatusCodes.CREATED);
-      expect(response.json()).toEqual(newGroup);
+      expect(response.json().members).toContain('omer');
+
+      const group = await getDB().collection('groups').findOne({ name: newGroup.name });
+      expect(group).not.toBeNull();
     });
 
     it('should not allow duplicate group names', async () => {
@@ -57,6 +58,7 @@ describe('groups', () => {
           name: testGroup.name,
           description: 'Duplicate group for testing',
           password: 'test456',
+          opener: 'test',
         },
       });
   
@@ -114,12 +116,108 @@ describe('groups', () => {
     });
   });
 
+  describe('POST /groups/:groupName/subscribe', () => {
+    it('should allow a user to subscribe with the correct password', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: `/groups/${testGroup.name}/subscribe`,
+        payload: { username: 'jane_doe', password: testGroup.password },
+      });
+  
+      expect(response.statusCode).toBe(StatusCodes.OK);
+      const group = await getDB().collection('groups').findOne({ name: testGroup.name });
+      expect(group?.members).toContain('jane_doe');
+    });
+
+    it('should not allow a user to subscribe twice', async () => {
+      await app.inject({
+        method: 'POST',
+        url: `/groups/${testGroup.name}/subscribe`,
+        payload: { username: 'jane_doe', password: testGroup.password },
+      });
+
+      const group = await getDB().collection('groups').findOne({ name: testGroup.name });
+      expect(group?.members).toContain('jane_doe');
+
+      const response = await app.inject({
+        method: 'POST',
+        url: `/groups/${testGroup.name}/subscribe`,
+        payload: { username: 'jane_doe', password: testGroup.password },
+      });
+  
+      expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST);
+      expect(response.json().message).toEqual('User already subscribed');
+    });
+    
+    it('should return 401 for incorrect password', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: `/groups/${testGroup.name}/subscribe`,
+        payload: { username: 'jane_doe', password: 'wrongpassword' },
+      });
+  
+      expect(response.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+      const group = await getDB().collection('groups').findOne({ name: testGroup.name });
+      expect(group?.members).not.toContain('jane_doe');
+    });
+
+    it('should return 404 for group not found', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/groups/nonExistentGroup/subscribe',
+        payload: { username: 'jane_doe', password: 'password' },
+      });
+  
+      expect(response.statusCode).toBe(StatusCodes.NOT_FOUND);
+      expect(response.json().message).toEqual('Group not found');
+    });
+  });
+  
+  describe('POST /groups/:groupName/unsubscribe', () => {
+    it('should allow a user to unsubscribe', async () => {
+      const memberToUnsubscribe = testGroup.members[0];
+
+      const response = await app.inject({
+        method: 'POST',
+        url: `/groups/${testGroup.name}/unsubscribe`,
+        payload: { username: memberToUnsubscribe },
+      });
+  
+      expect(response.statusCode).toBe(StatusCodes.OK);
+      const group = await getDB().collection('groups').findOne({ name: testGroup.name });
+      expect(group?.members).not.toContain(memberToUnsubscribe);
+    });
+
+    it('should return 404 if the group is not found', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: `/groups/nonExistentGroup/unsubscribe`,
+        payload: { username: 'nonexistent_user' },
+      });
+  
+      expect(response.statusCode).toBe(StatusCodes.NOT_FOUND);
+      expect(response.json().message).toEqual('Group not found');
+    });
+  
+    it('should return 404 if the user is not subscribed', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: `/groups/${testGroup.name}/unsubscribe`,
+        payload: { username: 'nonexistent_user' },
+      });
+  
+      expect(response.statusCode).toBe(StatusCodes.NOT_FOUND);
+      expect(response.json().message).toEqual('User not subscribed');
+    });
+  });
+
   describe('Multiple Operations on Groups', () => {
     it('should create, update, and delete a group in sequence', async () => {
       const newGroup = {
         name: 'Sequence Group',
         description: 'For testing multiple operations',
         password: 'test1234',
+        opener: 'test',
       };
 
       const createResponse = await app.inject({
