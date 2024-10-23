@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import app from '../src/server';
 import { StatusCodes } from 'http-status-codes';
-import { connectDB, disconnectDB, getDB } from '../src/db';
+import { getDB } from '../src/db';
 import { beforeEach } from 'node:test';
 import config from '../config';
 import { User } from '../src/db/repositories/users';
@@ -11,7 +11,6 @@ describe('Authentication', () => {
     describe('Authentication Routes', () => {
         let collection: Collection<User>;
         beforeAll(async () => {
-            await connectDB();
             collection = getDB().collection<User>('users');
             await collection.drop();
         });
@@ -106,17 +105,12 @@ describe('Authentication', () => {
         let collection: Collection<User>;
         
         beforeAll(async () => {
-            await connectDB();
             collection = getDB().collection<User>('users'); 
             await collection.deleteMany({});
         });
     
         beforeEach(async () => {
             await collection.deleteMany({});            
-        });
-    
-        afterAll(async () => {
-            await disconnectDB();
         });
     
         it('should allow access to protected routes with a valid token', async () => {

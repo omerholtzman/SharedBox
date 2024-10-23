@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, beforeAll, afterAll, vi } from 'vitest';
 import app from '../src/server';
 import { StatusCodes } from 'http-status-codes';
-import { connectDB, getDB } from '../src/db';
+import { getDB } from '../src/db';
 import * as authMiddleware from '../src/middleware/authMiddleware';
 import { Group } from '../src/types/groups';
 import { Collection } from 'mongodb';
@@ -19,7 +19,6 @@ describe('groups', () => {
   };
 
   beforeAll(async () => {
-    await connectDB();
     collection = getDB().collection<Group>('groups');
     await collection.drop();
   });
