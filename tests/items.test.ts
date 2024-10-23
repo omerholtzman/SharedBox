@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
 import app from '../src/server.js';
-import { getDB, connectDB } from '../src/db';
+import { getDB } from '../src/db';
 import * as authMiddleware from '../src/middleware/authMiddleware';
 import { StatusCodes } from 'http-status-codes';
 import { Item } from '../src/types/items.js';
@@ -20,7 +20,6 @@ describe('items', () => {
       });
     
     beforeAll(async () => {
-        await connectDB();
         const db = getDB();
         collection = db.collection<Item>('items');
     });

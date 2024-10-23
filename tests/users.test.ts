@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, beforeAll, afterAll, vi } from 'vitest';
 import app from '../src/server';
 import { StatusCodes } from 'http-status-codes';
-import { connectDB, getDB } from '../src/db';
+import { getDB } from '../src/db';
 import * as authMiddleware from '../src/middleware/authMiddleware';
 import { Group } from '../src/types/groups';
 import { Collection } from 'mongodb';
@@ -19,7 +19,6 @@ describe('users', () => {
   };
 
   beforeAll(async () => {
-    await connectDB();
     collection = getDB().collection<Group>('groups');
     await collection.drop();
   });
@@ -42,7 +41,7 @@ describe('users', () => {
         method: 'GET',
         url: `/users/${testGroup.members[0]}/groups`,
       });
-  
+      
       expect(response.statusCode).toBe(StatusCodes.OK);
       expect(response.json()).toEqual({groups: [testGroup.name, 'new group']});
     });
