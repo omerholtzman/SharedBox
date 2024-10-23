@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, beforeAll, afterAll, vi } from 'vitest';
 import app from '../src/server';
 import { StatusCodes } from 'http-status-codes';
-import { connectDB, disconnectDB, getDB } from '../src/db';
+import { connectDB, getDB } from '../src/db';
 import * as authMiddleware from '../src/middleware/authMiddleware';
 import { Group } from '../src/types/groups';
 import { Collection } from 'mongodb';
@@ -15,7 +15,7 @@ describe('users', () => {
     name: 'Test Group',
     description: 'A group for testing',
     password: 'test123',
-    members: ['omer'],
+    members: ['shira'],
   };
 
   beforeAll(async () => {
@@ -30,7 +30,7 @@ describe('users', () => {
   });
 
   afterAll(async () => {
-    await disconnectDB();
+    await collection.drop();
   });
 
   describe('GET /users/:username/groups', () => {

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
 import app from '../src/server.js';
-import { getDB, connectDB, disconnectDB } from '../src/db';
+import { getDB, connectDB } from '../src/db';
 import * as authMiddleware from '../src/middleware/authMiddleware';
 import { StatusCodes } from 'http-status-codes';
 import { Item } from '../src/types/items.js';
@@ -26,7 +26,6 @@ describe('items', () => {
     });
 
     afterAll(async () => {
-        await disconnectDB();
     });
     
     describe('GET /groups/:groupName/items', () => {
