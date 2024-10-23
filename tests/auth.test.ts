@@ -13,15 +13,15 @@ describe('Authentication', () => {
         beforeAll(async () => {
             await connectDB();
             collection = getDB().collection<User>('users');
-            await collection.deleteMany({});
+            await collection.drop();
         });
     
         beforeEach(async () => {
-            await collection.deleteMany({});
+            await collection.drop();
         });
         
         afterAll(async () => {
-            await disconnectDB();
+            await collection.drop();
         });
     
         it('should allow a user to sign up', async () => {

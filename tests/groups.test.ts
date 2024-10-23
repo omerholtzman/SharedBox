@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, beforeAll, afterAll, vi } from 'vitest';
 import app from '../src/server';
 import { StatusCodes } from 'http-status-codes';
-import { connectDB, disconnectDB, getDB } from '../src/db';
+import { connectDB, getDB } from '../src/db';
 import * as authMiddleware from '../src/middleware/authMiddleware';
 import { Group } from '../src/types/groups';
 import { Collection } from 'mongodb';
@@ -30,7 +30,7 @@ describe('groups', () => {
   });
 
   afterAll(async () => {
-    await disconnectDB();
+    await collection.drop();
   });
 
   describe('POST /groups', () => {
@@ -39,7 +39,7 @@ describe('groups', () => {
         name: 'Family',
         description: 'Family storage group',
         password: 'password123',
-        opener: 'omer',
+        opener: 'gal',
       };
   
       const response = await app.inject({
@@ -49,7 +49,7 @@ describe('groups', () => {
       });
   
       expect(response.statusCode).toBe(StatusCodes.CREATED);
-      expect(response.json().members).toContain('omer');
+      expect(response.json().members).toContain('gal');
 
       const group = await collection.findOne({ name: newGroup.name });
       expect(group).not.toBeNull();
